@@ -85,7 +85,6 @@ UPDATE new_studie SET naam = 'Technische Bedrijfskunde' 				WHERE code = 'TBK';
 UPDATE new_studie SET naam = 'Telematics' 								WHERE code = 'TEL';
 UPDATE new_studie SET naam = 'Technische Wiskunde' 						WHERE code = 'TW';
 UPDATE new_studie SET naam = 'Wetenschap, Technologie en Maatschappij' 	WHERE code = 'WTM';
--- TODO: meer van deze namen opzoeken en updaten, nu is het slechts proof-of-concept
 
 -- Query voor vakken opzetten
 INSERT INTO new_vak (code, naam, beschrijving, studie, ects, ismodule) 
