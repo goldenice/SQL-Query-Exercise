@@ -74,8 +74,17 @@ DROP TABLE IF EXISTS new_sa; CREATE TABLE sa(
 INSERT INTO new_studie (code, naam, faccode) SELECT DISTINCT studie, studie, 0  FROM onderwijs ORDER BY studie ASC;
 
 -- Onderstaande data is handmatig bepaald, komt niet uit de oude database
-UPDATE "new_studie" SET naam = 'Technische Informatica' WHERE code='INF';
-UPDATE "new_studie" SET naam = 'Business and IT' WHERE code='BIT';
+UPDATE new_studie SET naam = 'Technische Informatica' 					WHERE code='INF';
+UPDATE new_studie SET naam = 'Business and IT' 							WHERE code='BIT';
+UPDATE new_studie SET naam = 'Biomedische Technologie' 					WHERE code = 'BMT';
+UPDATE new_studie SET naam = 'Bestuurskunde' 							WHERE code = 'BSK'; 
+UPDATE new_studie SET naam = 'Civiele Techniek' 						WHERE code = 'CIT'; 
+UPDATE new_studie SET naam = 'Elektrotechniek' 							WHERE code = 'EL'; 
+UPDATE new_studie SET naam = 'Psychologie' 								WHERE code = 'PSY';
+UPDATE new_studie SET naam = 'Technische Bedrijfskunde' 				WHERE code = 'TBK';
+UPDATE new_studie SET naam = 'Telematics' 								WHERE code = 'TEL';
+UPDATE new_studie SET naam = 'Technische Wiskunde' 						WHERE code = 'TW';
+UPDATE new_studie SET naam = 'Wetenschap, Technologie en Maatschappij' 	WHERE code = 'WTM';
 -- TODO: meer van deze namen opzoeken en updaten, nu is het slechts proof-of-concept
 
 -- Query voor vakken opzetten
