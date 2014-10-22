@@ -1,59 +1,55 @@
--- Dit SQL script is geschreven door Rick Lubbers
--- Deze broncode is volledige propietary
--- Als je het kopieert kan ik je aanklagen.
---
--- Don't you fucking dare, punk.
+-- Licensed under the MIT license by Rick Lubbers, 2014.
 
 DROP TABLE IF EXISTS new_studie; CREATE TABLE new_studie(
-		code			VARCHAR(10)		PRIMARY KEY		NOT NULL,
-		naam			VARCHAR(64)						NOT NULL,
-		faccode			INT
+		code		VARCHAR(10)			PRIMARY KEY			NOT NULL,
+		naam		VARCHAR(64)							NOT NULL,
+		faccode		INT	
 	);
 
 DROP TABLE IF EXISTS new_facculteit; CREATE TABLE new_facculteit(
-		code			INT				PRIMARY KEY		NOT NULL,
-		naam			VARCHAR(64)						NOT NULL
+		code		INT				PRIMARY KEY			NOT NULL,
+		naam		VARCHAR(64)							NOT NULL
 	);
 
 DROP TABLE IF EXISTS new_vak; CREATE TABLE new_vak(
-		code 			INT 			PRIMARY KEY 	NOT NULL,
+		code 			INT 			PRIMARY KEY 			NOT NULL,
 		naam			VARCHAR(64)						NOT NULL,
-		beschrijving	TEXT,
+		beschrijving		TEXT,
 		studie			VARCHAR(10)						NOT NULL,
-		ects			INT								NOT NULL,
+		ects			INT							NOT NULL,
 		ismodule		BOOLEAN							NOT NULL
 	);
 
 DROP TABLE IF EXISTS new_vakeditie; CREATE TABLE new_vakeditie(
-		jaar			INT								NOT NULL,
-		semester		CHAR(1)							NOT NULL,
-		vakcode			INT								NOT NULL,
-		hoofddocent		INT,
+		jaar		INT								NOT NULL,
+		semester	CHAR(1)								NOT NULL,
+		vakcode		INT								NOT NULL,
+		hoofddocent	INT,
 		PRIMARY KEY(jaar, semester, vakcode)
 	);
 
 DROP TABLE IF EXISTS new_docent; CREATE TABLE new_docent(
-		nr				INT				PRIMARY KEY		NOT NULL,
-		naam			VARCHAR(255)					NOT NULL,
-		indienst		DATE							NOT NULL,
-		uitdienst 		DATE
+		nr		INT				PRIMARY KEY			NOT NULL,
+		naam		VARCHAR(255)							NOT NULL,
+		indienst	DATE								NOT NULL,
+		uitdienst 	DATE
 	);
 	
 DROP TABLE IF EXISTS new_docent_vakeditie; CREATE TABLE new_docent_vakeditie(
-		docentnr		INT								NOT NULL,
-		jaar			INT								NOT NULL,
-		semester		CHAR(1)							NOT NULL,
-		vakcode			INT								NOT NULL,
+		docentnr	INT								NOT NULL,
+		jaar		INT								NOT NULL,
+		semester	CHAR(1)								NOT NULL,
+		vakcode		INT								NOT NULL,
 		PRIMARY KEY(docentnr, jaar, semester, vakcode)
 	);
 
 DROP TABLE IF EXISTS new_studenten; CREATE TABLE new_studenten(
-		nr	 		INT				PRIMARY KEY			NOT NULL,
-		naam		VARCHAR(255)						NOT NULL
+		nr	 	INT				PRIMARY KEY			NOT NULL,
+		naam		VARCHAR(255)							NOT NULL
 	);
 
 DROP TABLE IF EXISTS new_studenten_studie; CREATE TABLE new_studenten_studie(
-		studentnr	INT									NOT NULL,
+		studentnr	INT								NOT NULL,
 		studiecode	VARCHAR(10)							NOT NULL,
 		start_date	DATE								NOT NULL,
 		stop_date	DATE,
@@ -61,11 +57,11 @@ DROP TABLE IF EXISTS new_studenten_studie; CREATE TABLE new_studenten_studie(
 	);
 
 DROP TABLE IF EXISTS new_cijfers; CREATE TABLE new_cijfers(
-		id				SERIAL 		PRIMARY KEY			NOT NULL,
-		studentnr		INT								NOT NULL,
-		vakcode			INT								NOT NULL,
-		cijfer			INT								NOT NULL,
-		isdeelcijfer	BOOLEAN							NOT NULL
+		id		SERIAL		 		PRIMARY KEY			NOT NULL,
+		studentnr	INT								NOT NULL,
+		vakcode		INT								NOT NULL,
+		cijfer		INT								NOT NULL,
+		isdeelcijfer	BOOLEAN								NOT NULL
 	);
 
 DROP TABLE IF EXISTS new_sa; CREATE TABLE sa(
@@ -96,7 +92,10 @@ INSERT INTO new_vakeditie (jaar, semester, vakcode)
 
 -- Query voor docenten overnemen
 INSERT INTO new_docent (nr, naam, indienst) 
-	SELECT docentnr, docent, NOW() FROM onderwijs GROUP BY docentnr,docent ORDER BY docentnr ASC;
+	SELECT docentnr, docent, NOW() 
+		FROM onderwijs 
+		GROUP BY docentnr,docent 
+		ORDER BY docentnr ASC;
 
 -- Query voor koppelen docenten aan vakken
 INSERT INTO new_docent_vakeditie (docentnr, jaar, semester, vakcode) 
@@ -108,8 +107,8 @@ INSERT INTO new_docent_vakeditie (docentnr, jaar, semester, vakcode)
 -- Query voor laden studenten
 INSERT INTO new_studenten (nr, naam) 
 	SELECT DISTINCT studentnr, student 
-	FROM cijfers 
-	ORDER BY studentnr ASC;
+		FROM cijfers 
+		ORDER BY studentnr ASC;
 
 -- Query voor koppelen studenten aan studie
 INSERT INTO new_studenten_studie (studentnr, studiecode, start_date) 
