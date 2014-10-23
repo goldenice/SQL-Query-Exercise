@@ -3,11 +3,11 @@
 DROP TABLE IF EXISTS new_studie; CREATE TABLE new_studie(
 		code		VARCHAR(10)			PRIMARY KEY			NOT NULL,
 		naam		VARCHAR(64)							NOT NULL,
-		faccode		INT	
+		faccode		VARCHAR(10)
 	);
 
-DROP TABLE IF EXISTS new_facculteit; CREATE TABLE new_facculteit(
-		code		INT				PRIMARY KEY			NOT NULL,
+DROP TABLE IF EXISTS new_faculteit; CREATE TABLE new_faculteit(
+		code		VARCHAR(10)			PRIMARY KEY		NOT NULL,
 		naam		VARCHAR(64)							NOT NULL
 	);
 
@@ -32,7 +32,8 @@ DROP TABLE IF EXISTS new_docent; CREATE TABLE new_docent(
 		nr		INT				PRIMARY KEY			NOT NULL,
 		naam		VARCHAR(255)							NOT NULL,
 		indienst	DATE								NOT NULL,
-		uitdienst 	DATE
+		uitdienst 	DATE,
+		faccode		VARCHAR(10)
 	);
 	
 DROP TABLE IF EXISTS new_docent_vakeditie; CREATE TABLE new_docent_vakeditie(
@@ -64,7 +65,7 @@ DROP TABLE IF EXISTS new_cijfers; CREATE TABLE new_cijfers(
 		isdeelcijfer	BOOLEAN								NOT NULL
 	);
 
-DROP TABLE IF EXISTS new_sa; CREATE TABLE sa(
+DROP TABLE IF EXISTS new_sa; CREATE TABLE new_sa(
 		studentnr	INT			NOT NULL,
 		vakcode		INT			NOT NULL,
 		PRIMARY KEY (studentnr, vakcode)
@@ -74,17 +75,25 @@ DROP TABLE IF EXISTS new_sa; CREATE TABLE sa(
 INSERT INTO new_studie (code, naam, faccode) SELECT DISTINCT studie, studie, 0  FROM onderwijs ORDER BY studie ASC;
 
 -- Onderstaande data is handmatig bepaald, komt niet uit de oude database
-UPDATE new_studie SET naam = 'Technische Informatica' 					WHERE code='INF';
-UPDATE new_studie SET naam = 'Business and IT' 							WHERE code='BIT';
-UPDATE new_studie SET naam = 'Biomedische Technologie' 					WHERE code = 'BMT';
-UPDATE new_studie SET naam = 'Bestuurskunde' 							WHERE code = 'BSK'; 
-UPDATE new_studie SET naam = 'Civiele Techniek' 						WHERE code = 'CIT'; 
-UPDATE new_studie SET naam = 'Elektrotechniek' 							WHERE code = 'EL'; 
-UPDATE new_studie SET naam = 'Psychologie' 								WHERE code = 'PSY';
-UPDATE new_studie SET naam = 'Technische Bedrijfskunde' 				WHERE code = 'TBK';
-UPDATE new_studie SET naam = 'Telematics' 								WHERE code = 'TEL';
-UPDATE new_studie SET naam = 'Technische Wiskunde' 						WHERE code = 'TW';
-UPDATE new_studie SET naam = 'Wetenschap, Technologie en Maatschappij' 	WHERE code = 'WTM';
+INSERT INTO new_faculteit (code, naam) 
+	VALUES 
+		('EWI', 'Elektrotechniek, Wiskunde en Informatica'),
+		('TNW', 'Technische Natuurwetenschappen'),
+		('MB', 'Management en Bestuur'),
+		('CTW', 'Construerende Technische Wetenschappen'),
+		('GW', 'Gedragswetenschappen');
+
+UPDATE new_studie SET naam = 'Technische Informatica', faccode = 'EWI' 					WHERE code = 'INF';
+UPDATE new_studie SET naam = 'Business and IT', faccode = 'EWI'							WHERE code = 'BIT';
+UPDATE new_studie SET naam = 'Biomedische Technologie', faccode = 'TNW'					WHERE code = 'BMT';
+UPDATE new_studie SET naam = 'Bestuurskunde', faccode = 'MB' 							WHERE code = 'BSK'; 
+UPDATE new_studie SET naam = 'Civiele Techniek', faccode = 'CTW' 						WHERE code = 'CIT'; 
+UPDATE new_studie SET naam = 'Elektrotechniek', faccode = 'EWI'							WHERE code = 'EL'; 
+UPDATE new_studie SET naam = 'Psychologie', faccode = 'GW'								WHERE code = 'PSY';
+UPDATE new_studie SET naam = 'Technische Bedrijfskunde', faccode = 'MB'					WHERE code = 'TBK';
+UPDATE new_studie SET naam = 'Telematics', faccode = 'EWI'								WHERE code = 'TEL';
+UPDATE new_studie SET naam = 'Technische Wiskunde', faccode = 'EWI'						WHERE code = 'TW';
+UPDATE new_studie SET naam = 'Wetenschap, Technologie en Maatschappij', faccode = 'EWI' WHERE code = 'WTM';
 
 -- Query voor vakken opzetten
 INSERT INTO new_vak (code, naam, beschrijving, studie, ects, ismodule) 
@@ -99,11 +108,13 @@ INSERT INTO new_vakeditie (jaar, semester, vakcode)
 		ORDER BY vakcode, semester ASC;
 
 -- Query voor docenten overnemen
-INSERT INTO new_docent (nr, naam, indienst) 
-	SELECT docentnr, docent, NOW() 
-		FROM onderwijs 
-		GROUP BY docentnr,docent 
-		ORDER BY docentnr ASC;
+INSERT INTO new_docent (nr, naam, indienst, faccode) 
+	SELECT DISTINCT ON (o.docentnr) o.docentnr, o.docent, NOW(), s.faccode
+		FROM onderwijs AS o
+		LEFT OUTER JOIN new_docent_vakeditie AS dve ON o.docentnr = dve.docentnr
+		LEFT OUTER JOIN new_vak AS v ON dve.vakcode = v.code
+		LEFT OUTER JOIN new_studie AS s ON v.studie = s.code
+		ORDER BY o.docentnr ASC;
 
 -- Query voor koppelen docenten aan vakken
 INSERT INTO new_docent_vakeditie (docentnr, jaar, semester, vakcode) 
